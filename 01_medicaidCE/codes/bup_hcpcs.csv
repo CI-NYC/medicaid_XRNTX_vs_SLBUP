@@ -1,0 +1,17 @@
+code,initiate,name,days,ouddx1,moud,route
+J0570,0,"Buprenorphine implant, 74.2 mg",180,0,bup,implant
+J0571,1,"Buprenorphine, oral, 1 mg",1,0,bup,oral
+J0572,1,"Buprenorphine/naloxone, oral, less than or equal to 3 mg buprenorphine",1,0,bup,oral
+J0573,1,"Buprenorphine/naloxone, oral, greater than 3 mg, but less than or equal to 6 mg buprenorphine",1,0,bup,oral
+J0574,1,"Buprenorphine/naloxone, oral, greater than 6 mg, but less than or equal to 10 mg buprenorphine",1,0,bup,oral
+J0575,1,"Buprenorphine/naloxone, oral, greater than 10 mg buprenorphine",1,0,bup,oral
+Q9991,0,"Injection, buprenorphine extended-release (sublocade), less than or equal to 100 mg",30,0,bup,injection
+Q9992,0,"Injection, buprenorphine extended-release (sublocade), greater than 100 mg",30,0,bup,injection
+H0033,0,"Oral medication administration, direct observation",1,1,bup_meth,oral
+G2068,1,"Medication assisted treatment, buprenorphine (oral); weekly bundle including dispensing and/or administration, substance use counseling, individual and group therapy, and toxicology testing if performed (provision of the services by a medicare-enrolled opioid treatment program)",7,0,bup,oral
+G2069,0,"Medication assisted treatment, buprenorphine (injectable); weekly bundle including dispensing and/or administration, substance use counseling, individual and group therapy, and toxicology testing if performed (provision of the services by a medicare-enrolled opioid treatment program)",7,0,bup,injection
+G2070,0,"Medication assisted treatment, buprenorphine (implant insertion); weekly bundle including dispensing and/or administration, substance use counseling, individual and group therapy, and toxicology testing if performed (provision of the services by a medicare-enrolled opioid treatment program)",7,0,bup,implant
+G2072,0,"Medication assisted treatment, buprenorphine (implant insertion and removal); weekly bundle including dispensing and/or administration, substance use counseling, individual and group therapy, and toxicology testing if performed (provision of the services by a medicare-enrolled opioid treatment program)",7,0,bup,implant
+G2079,1,Take-home supply of buprenorphine (oral); up to 7 additional day supply (provision of the services by a medicare-enrolled opioid treatment program); list separately in addition to code for primary procedure,7,0,bup,oral
+G0516 ,0,"Insert drug delivery implant, ≥4 ",180,1,bup,implant
+G0518,0,"Removal with reinsertion, non-biodegradable drug delivery implants, ≥4 ",180,1,bup,implant

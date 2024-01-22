@@ -1,0 +1,14 @@
+code,name
+0115,Private medical or general-hospice
+0125,Semi-private 2 bed (medical or general)-hospice
+0135,Semi-private 3 and 4 beds-hospice
+0145,Private (deluxe)-hospice
+0155,Room & Board ward (medical or general)-hospice
+0235,Incremental nursing charge rate-hospice
+0650,Hospice services-general classification
+0651,Hospice services-routine home care
+0652,Hospice services-continuous home care-1/2
+0655,Hospice services-inpatient care
+0656,Hospice services-general inpatient care (non-respite)
+0657,Hospice services-physician services
+0659,Hospice services-other

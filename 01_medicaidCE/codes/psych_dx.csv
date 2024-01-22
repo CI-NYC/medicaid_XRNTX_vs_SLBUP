@@ -1,0 +1,30 @@
+code,name,label,source
+F060,PSYCHOTIC DISORDER W HALLUCIN DUE TO KNOWN PHYSIOL CONDITION,OTHER SEVERE PSYCH DISORDER,
+F061,CATATONIC DISORDER DUE TO KNOWN PHYSIOLOGICAL CONDITION,OTHER SEVERE PSYCH DISORDER,
+F062,PSYCHOTIC DISORDER W DELUSIONS DUE TO KNOWN PHYSIOL COND,OTHER SEVERE PSYCH DISORDER,
+F0630,"Mood disorder due to known phsyiological condition, unspecified",,larochelle
+F0631,"Mood disorder due to known phsyiological condition, with depressive features",,larochelle
+F0632,"Mood disorder due to known phsyiological condition, with major depressive-like episodes",,larochelle
+F0633,"Mood disorder due to known phsyiological condition, with manic features",,larochelle
+F0634,"Mood disorder due to known phsyiological condition, with mixed features",,larochelle
+F200,Paranoid schizophrenia,SCHIZOPHRENIA,
+F201,Disorganized schizophrenia,SCHIZOPHRENIA,
+F202,Catatonic schizophrenia,SCHIZOPHRENIA,
+F203,Undifferentiated schizophrenia,SCHIZOPHRENIA,
+F205,Residual schizophrenia,SCHIZOPHRENIA,
+F2081,Schizophreniform disorder,SCHIZOPHRENIA,
+F2089,Other schizophrenia,SCHIZOPHRENIA,
+F209,"Schizophrenia, unspecified",SCHIZOPHRENIA,
+F21,SCHIZOTYPAL DISORDER,OTHER SEVERE PSYCH DISORDER,
+F22,DELUSIONAL DISORDERS,OTHER SEVERE PSYCH DISORDER,
+F23,BRIEF PSYCHOTIC DISORDER,PSYCHOTIC DISORDER CODES,
+F24,SHARED PSYCHOTIC DISORDER,PSYCHOTIC DISORDER CODES,
+F250,"Schizoaffective disorder, bipolar type",SCHIZOPHRENIA,
+F251,"Schizoaffective disorder, depressive type",SCHIZOPHRENIA,
+F258,Other schizoaffective disorders,SCHIZOPHRENIA,
+F259,"Schizoaffective disorder, unspecified",SCHIZOPHRENIA,
+F28,OTH PSYCH DISORDER NOT DUE TO A SUB OR KNOWN PHYSIOL COND,PSYCHOTIC DISORDER CODES,
+F29,UNSP PSYCHOSIS NOT DUE TO A SUBSTANCE OR KNOWN PHYSIOL COND,PSYCHOTIC DISORDER CODES,
+F4481,DISSOCIATIVE IDENTITY DISORDER,DISSOCIATIVE DISORDER,
+F531,PUERPERAL PSYCHOSIS,PSYCHOTIC DISORDER CODES,
+F601,SCHIZOID PERSONALITY DISORDER,OTHER SEVERE PSYCH DISORDER,

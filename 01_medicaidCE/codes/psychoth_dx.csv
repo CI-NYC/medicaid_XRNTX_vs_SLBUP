@@ -1,0 +1,53 @@
+code,name
+F01,Vascular dementia
+F02,Dementia in other diseases classified elsewhere
+F03,Unspecified dementia
+F04,Amnestic disorder due to known physiological condition
+F05,Delirium due to known physiological condition
+F06,Other mental disorders due to known physiological condition
+F07,Personality and behavioral disorders due to known physiological condition
+F09,Unspecified mental disorder due to known physiological condition
+F3481,Disruptive mood dysregulation disorder
+F3489,Other specified persistent mood disorders
+F349,"Persistent mood [affective] disorder, unspecified"
+F39,Unspecified mood [affective] disorder
+F432,Adjustment disorders
+F439,"Reaction to severe stress, unspecified"
+F42,Obsessive-compulsive disorder
+F44,Dissociative and conversion disorders
+F45,Somatoform disorders
+F48,Other nonpsychotic mental disorders
+F50,Eating disorders
+F51,Sleep disorders not due to a substance or known physiological condition
+F52,Sexual dysfunction not due to a substance or known physiological condition
+F53,"Mental and behavioral disorders associated with the puerperium, not elsewhere classified"
+F54,Psychological and behavioral factors associated with disorders or diseases classified elsewhere
+F55,Abuse of non-psychoactive substances
+F59,Unspecified behavioral syndromes associated with physiological disturbances and physical factors
+F60,Specific personality disorders
+F63,Impulse disorders
+F64,Gender identity disorders
+F65,Paraphilias
+F66,Other sexual disorders
+F68,Other disorders of adult personality and behavior
+F69,Unspecified disorder of adult personality and behavior
+F70,Mild intellectual disabilities
+F71,Moderate intellectual disabilities
+F72,Severe intellectual disabilities
+F73,Profound intellectual disabilities
+F78,Other intellectual disabilities
+F79,Unspecified intellectual disabilities
+F80,Specific developmental disorders of speech and language
+F81,Specific developmental disorders of scholastic skills
+F82,Specific developmental disorder of motor function
+F84,Pervasive developmental disorders
+F88,Other disorders of psychological development
+F89,Unspecified disorder of psychological development
+F91,Conduct disorders
+F93,Emotional disorders with onset specific to childhood
+F940,Selective mutism
+F948,Other childhood disorders of social functioning
+F949,"Childhood disorder of social functioning, unspecified"
+F95,Tic disorder
+F98,Other behavioral and emotional disorders with onset usually occurring in childhood and adolescence
+F99,"Mental disorder, not otherwise specified"

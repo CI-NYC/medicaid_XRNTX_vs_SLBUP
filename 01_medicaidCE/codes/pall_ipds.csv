@@ -1,0 +1,16 @@
+code,name
+03,"03 = Discharged/transferred to skilled nursing facility (SNF) with Medicare certification in anticipation of covered skilled care â€” (For hospitals with an approved swing bed arrangement, use Code 61 â€” swing bed. For reporting discharges/transfers to a non-certified SNF, the hospital must use Code 04 â€” ICF."
+04,04 = Discharged/transferred to intermediate care facility (ICF).
+40,40 = Expired at home (hospice claims only)
+41,"41 = Expired in a medical facility such as hospital, SNF, ICF, or freestanding hospice. (Hospice claims only)"
+42,42 = Expired â€” place unknown (Hospice claims only)
+50,50 = Discharged/transferred to a Hospice â€” home.
+51,51 = Discharged/transferred to a Hospice â€” medical facility.
+63,63 = Discharged/transferred to a long-term care hospital. (eff. 1/2002) 
+64,64 = Discharged/transferred to a nursing facility certified under Medicaid but not under Medicare (eff. 10/2002)
+83,83 = Discharged/transferred to a skilled nursing facility (SNF) with Medicare certification with a planned acute care hospital inpatient readmission.
+84,84 = Discharged/transferred to a facility that provides custodial or supportive care with a planned acute care hospital inpatient readmission
+85,85 = Discharged/transferred to a designated cancer center or childrenâ€™s hospital with a planned acute care hospital inpatient readmission.
+88,88 = Discharged/transferred to a federal health care facility with a planned acute care hospital inpatient readmission.
+92,92 = Discharged/transferred to a nursing facility certified under Medicaid but not certified under Medicare with a planned acute care hospital inpatient readmission.
+95,95 = Discharged/transferred to another type of health care institution not defined elsewhere in this code list with a planned acute care hospital inpatient readmission

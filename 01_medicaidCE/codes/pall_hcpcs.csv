@@ -1,0 +1,78 @@
+code,name,larochelle
+99377,Under Care Plan Oversight Services,1
+99378,Under Care Plan Oversight Services,1
+G0031,Palliative care services given to patient any time during the measurement period,0
+G0034,Patients receiving palliative care during the measurement period,0
+G0048,Patients who receive palliative care services any time during the intake period through the end of the measurement year,0
+G0051,Patients under hospice care in the current reporting month,0
+G0182,Physician supervision of a patient under a Medicare-approved hospice,1
+G0337,Hospice evaluation and counseling services,1
+G9473,Services performed by chaplain in the hospice setting,0
+G9474,Services performed by dietary counselor in the hospice setting,1
+G9475,Services performed by other counselor in the hospice setting,1
+G9476,Services performed by volunteer in the hospice setting,1
+G9477,Services performed by care coordinator in the hospice setting,1
+G9478,Services performed by other qualified therapist in the hospice setting,1
+G9479,Services performed by qualified pharmacist in the hospice setting,1
+G9524,Patient was referred to hospice care,1
+G9687,Hospice services provided to patient any time during the measurement period,0
+G9688,Patients using hospice services any time during the measurement period,0
+G9690,Patient receiving hospice services any time during the measurement period,0
+G9691,Patient had hospice services any time during the measurement period,0
+G9692,Hospice services received by patient any time during the measurement period,0
+G9693,Patient use of hospice services any time during the measurement period,0
+G9694,Hospice services UTIlized by patient any time during the measurement period,0
+G9700,Patients who use hospice services any time during the measurement period,0
+G9702,Patients who use hospice services any time during the measurement period,0
+G9707,Patient received hospice services any time during the measurement period,0
+G9709,Hospice services used by patient any time during the measurement period,0
+G9710,Patient was provided hospice services any time during the measurement period,0
+G9713,Patients who use hospice services any time during the measurement period,0
+G9714,Patient is using hospice services any time during the measurement period,0
+G9715,Patients who use hospice services any time during the measurement period,0
+G9720,Hospice services for patient occurred any time during the measurement period,0
+G9723,Hospice services for patient received any time during the measurement period,0
+G9725,Patients who use hospice services any time during the measurement period,0
+G9740,Hospice services given to patient any time during the measurement period,0
+G9741,Patients who use hospice services any time during the measurement period,0
+G9758,Patient in hospice at any time during the measurement period,0
+G9760,Patients who use hospice services any time during the measurement period,0
+G9761,Patients who use hospice services any time during the measurement period,0
+G9768,Patients who UTIlize hospice services any time during the measurement period,0
+G9805,Patients who use hospice services any time during the measurement period,0
+G9819,Patients who use hospice services any time during the measurement period,0
+G9858,Patient enrolled in hospice,0
+G9860,Patient spent less than three days in hospice care,0
+G9861,Patient spent greater than or equal to three days in hospice care,0
+G9988,Palliative care services provided to patient any time during the measurement period,0
+G9992,Palliative care services used by patient any time during the measurement period,0
+G9993,Patient was provided palliative care services any time during the measurement period,0
+G9994,Patient is using palliative care services any time during the measurement period,0
+G9995,Patients who use palliative care services any time during the measurement period,0
+G9996,Documentation stating the patient has received or is currently receiving palliative or hospice care,0
+M1059,Patient was in hospice or receiving palliative care at any time during the performance period,0
+M1067,Hospice services for patient provided any time during the measurement period,0
+M1154,Hospice services provided to patient any time during the measurement period,0
+M1159,Hospice services provided to patient any time during the measurement period,0
+M1165,Patients who use hospice services any time during the measurement period,0
+M1167,In hospice or using hospice services during the measurement period,0
+M1186,Patients who have an order for or are receiving hospice or palliative care,0
+M1191,Hospice services provided to patient any time during the measurement period,0
+Q5001,Hospice or home health care provided in patient's home/residence,1
+Q5002,Hospice or home health care provided in assisted living facility,1
+Q5003,Hospice care provided in nursing long term care facility (LTC) or non-skilled nursing facility (NF),1
+Q5004,Hospice care provided in skilled nursing facility (SNF),1
+Q5005,Hospice care provided in inpatient hospital,1
+Q5006,Hospice care provided in inpatient hospice facility,1
+Q5007,Hospice care provided in long term care facility,1
+Q5008,Hospice care provided in inpatient psychiatric facility,1
+Q5009,Hospice or home health care provided in place not otherwise specified (NOS),1
+Q5010,Hospice home care provided in a hospice facility,1
+S0255,"Hospice referral visit (advising patient and family of care options) performed by nurse, social worker, or other designated staff",1
+S0271,"Physician management of patient home care, hospice monthly case rate (per 30 days)",0
+S9126,"Hospice care, in the home, per diem",1
+T2042,Hospice routine home care; per diem,1
+T2043,Hospice continuous home care; per hour,1
+T2044,Hospice inpatient respite care; per diem,1
+T2045,Hospice general inpatient care; per diem,1
+T2046,"Hospice long term care, room and board only; per diem",1
