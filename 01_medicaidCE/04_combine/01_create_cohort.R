@@ -99,6 +99,24 @@ included <- inclexcl_df |> filter(incl_age==1)
 setDT(included)
 
 
+# # For revision response
+# box3 <- included |>
+#   filter(excl_nocontenr==0) |>
+#   filter(excl_prioruse_alt==0 & excl_multiday0==0)
+# 
+# excluded_prioruse <- included |>
+#   filter(excl_nocontenr==0) |>
+#   filter(excl_prioruse_alt==1 | excl_multiday0==1)
+# 
+# among_stayed <- excluded_prioruse[link_id %in% box3$link_id]
+# among_excluded <- excluded_prioruse[!(link_id %in% box3$link_id)]
+# 
+# box3[,.(n=.N,ind=n_distinct(link_id))] 
+# excluded_prioruse[,.(n=.N,ind=n_distinct(link_id))] 
+# 
+# among_excluded[,.(n=.N,ind=n_distinct(link_id))] 
+# among_stayed[,.(n=.N,ind=n_distinct(link_id))] 
+
 # getincln <- function(excl){
 #   start <- included[,.(n=.N,ind=n_distinct(link_id)),by=.(moud,YEAR,STATE)]
 #   start$step_name <- "start"

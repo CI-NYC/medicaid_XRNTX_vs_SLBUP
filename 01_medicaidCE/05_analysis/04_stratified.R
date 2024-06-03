@@ -89,17 +89,10 @@ W <- covars[covars!=stratvar]
 
 # Define library
 #lib <- c("mean","glm")
-lib <- c("mean","glm","lightgbm","earth")
+#lib <- c("mean","glm","lightgbm","earth")
+lib <- c("mean","glm","earth","xgboost")
 
 #### Functions ----
-
-# Extract diagnostics
-extractdiag <- function(object,trt){
-  tibble(eif = object$eif,
-         outcome_reg = object$outcome_reg,
-         density_ratios = object$density_ratios,
-         trt = trt)
-}
 
 # Extract results
 extractres <- function(object,trt){
@@ -111,7 +104,7 @@ extractres <- function(object,trt){
 }
 
 # Run survival lmtp_sdr
-survlmtp <- function(Y,C,data,cffolds,diag=FALSE){
+survlmtp <- function(Y,C,data,cffolds){
   y_1 %<-% lmtp_sdr(data, A, Y, W, cens = C,
                    outcome_type = "survival", 
                    folds = cffolds,
@@ -134,71 +127,22 @@ survlmtp <- function(Y,C,data,cffolds,diag=FALSE){
                           ucl = -1*sd$vals$conf.low,
                           trt = "rd"))
 
-  print(paste0("One time point done ",Y[length(Y)]))
-
-  if(diag==TRUE){
-    diag <- rbind(extractdiag(y_1,"ntx"),
-                  extractdiag(y_0,"bup"))
-    return(list("results"=results,"diag"=diag))
-  }else{
-    return(results)
-  }
-
+  return(results)
 }
 
 
-# Create list of time points with Y and C variables for a single outcome
-createlists <- function(out,Ymin,Ymax){
-  len <- Ymax - Ymin + 1
-  
-  Y <- vector("list",len)
-  C <- vector("list",len)
-  
-  for (i in 1:len){
-    Y[[i]] <- c(paste0("out",out,"_Y_",3:(Ymax - i + 1)))
-    C[[i]] <- c(paste0("out",out,"_C_",(2):(Ymax - i)))
-  }
-  
-  list(Y,C)
-}
 
-
-#### Run last time point to assess diagnostics ----
-#set.seed(73)
-
-#plan(multicore)
-#progressr::handlers(global = TRUE)
-
-#outcome <- "1a"
-# tic()
-# lastsurv <- survlmtp(paste0("out",outcome,"_Y_",3:26),
-#                      paste0("out",outcome,"_C_",2:25),
-#                      dat,
-#                      cffolds = 1,
-#                      diag = TRUE)
-# #summary(lastsurv$diag$eif)
-# #eif <- lastsurv$diag$eif
-# saveRDS(lastsurv,paste0(outpath,"lmtp",outcome,"_cohort",cohortnum,".rds"))
-# toc()
-
-
-# #### Run multiple time pts for each outcome ----
 set.seed(75)
 plan(multicore)
 tic()
 
-points <- createlists(outcome,6,26)
-surv1 <- future_map2(points[[1]],points[[2]],survlmtp,dat1,1,FALSE)
-surv0 <- future_map2(points[[1]],points[[2]],survlmtp,dat0,1,FALSE)
+Y <- c(paste0("out",outcome,"_Y_",3:26))
+C <- c(paste0("out",outcome,"_C_",2:25))
+surv1 <- survlmtp(Y,C,dat1,1)
+surv0 %<-% survlmtp(Y,C,dat0,1)
 
-rresults1 <- reduce(surv1,rbind) |>
-  mutate(t = max(row_number()) - row_number() + 6,.by=trt) |>
-  mutate(strat=stratvar,level=1)
-rresults0 <- reduce(surv0,rbind) |>
-  mutate(t = max(row_number()) - row_number() + 6,.by=trt) |>
-  mutate(strat=stratvar,level=0)
-
-saveRDS(rbind(rresults1,rresults0),
-        paste0(outpath,"lmtpall",outcome,"_cohort",cohortnum,stratvar,".rds"))
+saveRDS(rbind(surv1 |> mutate(strat=stratvar,level=1),
+              surv0 |> mutate(strat=stratvar,level=0)),
+        paste0(outpath,"lmtp",outcome,"_cohort",cohortnum,stratvar,".rds"))
 toc()
 

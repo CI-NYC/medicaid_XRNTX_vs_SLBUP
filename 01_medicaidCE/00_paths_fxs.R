@@ -20,7 +20,9 @@ library(data.table)
 #################
 
 # See if using full or sample from command line
+#print(commandArgs(trailingOnly=TRUE))
 dattype <- commandArgs(trailingOnly=TRUE)
+#print(dattype)
 
 # Root paths
 datapath <- "/home/data/moud/global/"
@@ -38,6 +40,8 @@ if (dattype=="full") {
   inproc <- paste0(datapath,"sample/processed/")
   outpath <- paste0(projpath,"sample/intermediate/")
 }
+
+#print(inraw)
 
 # Project code lists
 codes <- "/home/rr3551/moudr01/codes/01_medicaidCE/"

@@ -1,6 +1,6 @@
 ############################################-
 ############################################-
-# ATT analysis using TMLE
+# Sensitivity analyses
 # Author: Rachael Ross
 ############################################-
 ############################################-
@@ -44,10 +44,6 @@ clean <- paste0(projpath,"clean/")
 # Output
 outpath <- "/home/rr3551/moudr01/output/01_medicaidCE/"
 
-### Load data
-cohortnum <- 2
-dat <- readRDS(paste0(clean,"analysisdat_flat",cohortnum,".rds"))
-
 ### Load covariate list
 source("/home/rr3551/moudr01/scripts/01_medicaidCE/05_analysis/00_covarlist.R")
 
@@ -55,10 +51,25 @@ source("/home/rr3551/moudr01/scripts/01_medicaidCE/05_analysis/00_covarlist.R")
 analysisnum <- commandArgs(trailingOnly=TRUE)
 
 set.seed(37)
+plan(multicore)
 
 #################-
 # Process data----
 #################-
+
+tic()
+
+
+### Load data
+if(analysisnum<8){
+  cohortnum <- 2
+}else if (analysisnum<10){
+  cohortnum <- 3
+}else{
+  cohortnum <- 7
+}
+
+dat <- readRDS(paste0(clean,"analysisdat_flat",cohortnum,".rds"))
 
 # Remove missing in race/ethnicity and define binary trt
 dat <- dat |>
@@ -69,6 +80,11 @@ dat <- dat |>
          ntx = case_when(moud=="ntx"~1,.default=0),
          nj = ifelse(STATE=="NJ",1,0)) |>
   as.data.frame()
+
+
+
+#lib <- c("SL.mean","SL.glm")
+lib <- c("SL.mean","SL.glm","SL.earth","SL.xgboost")
 
 
 #################-
@@ -83,14 +99,13 @@ if(analysisnum==1) {
   W <- dat[,covars]
   #W <- dat[,c("dem_male","psy_depression")]
   #lib <- c("SL.mean","SL.glm")
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
   
   Y <- dat$event1a_Y180
   C <- dat$event1a_C180
   
   Y_nomiss <- ifelse(is.na(Y),0,Y)
   
-  att <- tmle(Y_nomiss,A,W,Delta=C,
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
               Q.SL.library = lib,
               g.SL.library = lib,
               g.Delta.SL.library = lib,
@@ -108,19 +123,23 @@ if(analysisnum==2) {
   
   A <- "ntx"
   W <- covars
-  lib <- c("mean","glm","lightgbm","earth")
   
-  # Fit pscore model
-  psmod <- mlr3superlearner(
-    data = dat[,c(A,W)],
-    target = A,
-    library = lib,
-    outcome_type = "binomial"
-  )
+  # # Fit pscore model
+  # psmod <- mlr3superlearner(
+  #   data = dat[,c(A,W)],
+  #   target = A,
+  #   library = c("glm"),
+  #   outcome_type = "binomial"
+  # )
   
+  psmod <- SuperLearner(Y = dat[,A], X = dat[,W], 
+                        SL.library = lib,  family = binomial())
+
   # Get predictions
   pscore <- dat %>%
-    mutate(pscore = predict(psmod, newdata=.))
+    #mutate(pscore = predict(psmod, newdata=.,type="response"))
+    mutate(pscore =  psmod$SL.predict)
+    #mutate(pscore = predict.SuperLearner(psmod, newdata=.)$pred) 
   
   # summary(pscore$pscore[pscore$ntx==1])
   # summary(pscore$pscore[pscore$ntx==0])
@@ -133,7 +152,7 @@ if(analysisnum==2) {
   
   
   trimmed <- totrim$data
-  table(trimmed$ntx)
+  #table(trimmed$ntx)
   
   # TMLE with trimmed cohort
   A <- trimmed$ntx
@@ -141,9 +160,8 @@ if(analysisnum==2) {
   Y <- trimmed$event1a_Y180
   C <- trimmed$event1a_C180
   Y_nomiss <- ifelse(is.na(Y),0,Y)
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
-  trim <- tmle(Y_nomiss,A,W,Delta=C,
+
+  trim %<-% tmle(Y_nomiss,A,W,Delta=C,
                Q.SL.library = lib,
                g.SL.library = lib,
                g.Delta.SL.library = lib,
@@ -162,14 +180,13 @@ if(analysisnum==2) {
 if(analysisnum==3) {
   A <- dat$ntx
   W <- dat[,covars]
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
+
   Y <- dat$eventseg1a_Y180
   C <- dat$eventseg1a_C180
   
   Y_nomiss <- ifelse(is.na(Y),0,Y)
   
-  segrace <- tmle(Y_nomiss,A,W,Delta=C,
+  segrace %<-% tmle(Y_nomiss,A,W,Delta=C,
                   Q.SL.library = lib,
                   g.SL.library = lib,
                   g.Delta.SL.library = lib,
@@ -188,14 +205,13 @@ if(analysisnum==3) {
 if(analysisnum==4) {
   A <- dat$ntx
   W <- dat[,covars]
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
+
   Y <- dat$eventse1a_Y180
   C <- dat$eventse1a_C180
   
   Y_nomiss <- ifelse(is.na(Y),0,Y)
   
-  seltfu <- tmle(Y_nomiss,A,W,Delta=C,
+  seltfu %<-% tmle(Y_nomiss,A,W,Delta=C,
                  Q.SL.library = lib,
                  g.SL.library = lib,
                  g.Delta.SL.library = lib,
@@ -208,6 +224,52 @@ if(analysisnum==4) {
 
 
 
+## 3-months look back - ATE ----
+
+if(analysisnum==8) {
+
+  A <- dat$ntx
+  W <- dat[,covars]
+  W <- W[,names(W)!="com_chronicpn"] # remove bc not defined in 90 days
+
+  Y <- dat$event1a_Y180
+  C <- dat$event1a_C180
+  
+  Y_nomiss <- ifelse(is.na(Y),0,Y)
+  
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
+              Q.SL.library = lib,
+              g.SL.library = lib,
+              g.Delta.SL.library = lib,
+              automate = TRUE, family= "binomial")
+  
+  saveRDS(att,paste0(outpath,"se1a","_3molb.rds"))
+  #readRDS(paste0(outpath,"tmle1a","_cohort",cohortnum,".rds"))
+}
+
+
+## >7 days bup at base - ATE ----
+
+if(analysisnum==10) {
+
+  A <- dat$ntx
+  W <- dat[,covars]
+
+  Y <- dat$event1a_Y180
+  C <- dat$event1a_C180
+  
+  Y_nomiss <- ifelse(is.na(Y),0,Y)
+  
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
+              Q.SL.library = lib,
+              g.SL.library = lib,
+              g.Delta.SL.library = lib,
+              automate = TRUE, family= "binomial")
+  
+  saveRDS(att,paste0(outpath,"se1a","_gr7bup.rds"))
+}
+
+
 #################-
 # OVERDOSE OUTCOME ----
 #################-
@@ -217,14 +279,13 @@ if(analysisnum==4) {
 if(analysisnum==5) {
   A <- dat$ntx
   W <- dat[,covars]
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
+
   Y <- dat$event2_Y180
   C <- dat$event2_C180
   
   Y_nomiss <- ifelse(is.na(Y),0,Y)
   
-  att <- tmle(Y_nomiss,A,W,Delta=C,
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
               Q.SL.library = lib,
               g.SL.library = lib,
               g.Delta.SL.library = lib,
@@ -240,19 +301,22 @@ if(analysisnum==5) {
 if(analysisnum==6) {
   A <- "ntx"
   W <- covars
-  lib <- c("mean","glm","lightgbm","earth")
+
+  # # Fit pscore model
+  # psmod <- mlr3superlearner(
+  #   data = dat[,c(A,W)],
+  #   target = A,
+  #   library = c("glm"),
+  #   outcome_type = "binomial"
+  # )
   
-  # Fit pscore model
-  psmod <- mlr3superlearner(
-    data = dat[,c(A,W)],
-    target = A,
-    library = lib,
-    outcome_type = "binomial"
-  )
-  
+  psmod <- SuperLearner(Y = dat[,A], X = dat[,W], 
+                        SL.library = lib,  family = binomial())
+
   # Get predictions
   pscore <- dat %>%
-    mutate(pscore = predict(psmod, newdata=.))
+    #mutate(pscore = predict(psmod, newdata=.,type="response"))
+    mutate(pscore =  psmod$SL.predict)
   
   # summary(pscore$pscore[pscore$ntx==1])
   # summary(pscore$pscore[pscore$ntx==0])
@@ -272,9 +336,8 @@ if(analysisnum==6) {
   Y <- trimmed$event2_Y180
   C <- trimmed$event2_C180
   Y_nomiss <- ifelse(is.na(Y),0,Y)
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
-  trim <- tmle(Y_nomiss,A,W,Delta=C,
+
+  trim %<-% tmle(Y_nomiss,A,W,Delta=C,
                Q.SL.library = lib,
                g.SL.library = lib,
                g.Delta.SL.library = lib,
@@ -303,14 +366,13 @@ if(analysisnum==7) {
   W <- datnew[,covars]
   #W <- dat[,c("dem_male","psy_depression")]
   #lib <- c("SL.mean","SL.glm")
-  lib <- c("SL.mean","SL.glm","SL.gbm","SL.earth")
-  
+
   Y <- datnew$eventse2_Y180
   C <- datnew$eventse2_C180
   
   Y_nomiss <- ifelse(is.na(Y),0,Y)
   
-  overdosealt <- tmle(Y_nomiss,A,W,Delta=C,
+  overdosealt %<-% tmle(Y_nomiss,A,W,Delta=C,
                       Q.SL.library = lib,
                       g.SL.library = lib,
                       g.Delta.SL.library = lib,
@@ -321,20 +383,81 @@ if(analysisnum==7) {
   saveRDS(overdosealt,paste0(outpath,"se2","_altdef.rds"))
 }
 
+## 3-months look back - ATE ----
 
+if(analysisnum==9) {
+
+  A <- dat$ntx
+  W <- dat[,covars]
+  W <- W[,names(W)!="com_chronicpn"] # remove bc not defined in 90 days
+
+  Y <- dat$event2_Y180
+  C <- dat$event2_C180
+  
+  Y_nomiss <- ifelse(is.na(Y),0,Y)
+  
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
+              Q.SL.library = lib,
+              g.SL.library = lib,
+              g.Delta.SL.library = lib,
+              automate = TRUE, family= "binomial")
+  
+  saveRDS(att,paste0(outpath,"se2","_3molb.rds"))
+}
+
+
+## >7 days bup at base - ATE ----
+
+if(analysisnum==11) {
+
+  A <- dat$ntx
+  W <- dat[,covars]
+
+  Y <- dat$event2_Y180
+  C <- dat$event2_C180
+  
+  Y_nomiss <- ifelse(is.na(Y),0,Y)
+  
+  att %<-% tmle(Y_nomiss,A,W,Delta=C,
+              Q.SL.library = lib,
+              g.SL.library = lib,
+              g.Delta.SL.library = lib,
+              automate = TRUE, family= "binomial")
+  
+  saveRDS(att,paste0(outpath,"se2","_gr7bup.rds"))
+}
+
+
+toc()
 
 ###############################-
 # Results ----
 ###############################-
 
-readRDS(paste0(outpath,"se1a_att.rds"))
-readRDS(paste0(outpath,"se1a_trim.rds"))
-readRDS(paste0(outpath,"se1a_trim_n.rds"))
-readRDS(paste0(outpath,"se1a_ltfu.rds"))
-readRDS(paste0(outpath,"se1a_grace.rds"))
+# Stratified analyses
+readRDS(paste0(outpath,"lmtp1a_cohort2com_chronicpn.rds"))
+readRDS(paste0(outpath,"lmtp1a_cohort2sud_alcohol.rds"))
 
-readRDS(paste0(outpath,"se2_att.rds"))
-readRDS(paste0(outpath,"se2_trim.rds"))
+# Se analysis
+# Discontinuation outcome
+readRDS(paste0(outpath,"se1a_att.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se1a_att.rds"))$estimates$ATT
+readRDS(paste0(outpath,"se1a_trim.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se1a_trim_n.rds"))
+readRDS(paste0(outpath,"se1a_ltfu.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se1a_grace.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se1a_3molb.rds"))$estimates$ATE
+table(readRDS(paste0(clean,"analysisdat_flat3.rds"))[,"moud"])
+readRDS(paste0(outpath,"se1a_gr7bup.rds"))$estimates$ATE
+table(readRDS(paste0(clean,"analysisdat_flat7.rds"))[,"moud"])
+
+# Overdose
+readRDS(paste0(outpath,"se2_att.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se2_att.rds"))$estimates$ATT
+readRDS(paste0(outpath,"se2_trim.rds"))$estimates$ATE
 table(readRDS(paste0(outpath,"se2_trim_n.rds")))
-readRDS(paste0(outpath,"se2_altdef.rds"))
+readRDS(paste0(outpath,"se2_altdef.rds"))$estimates$ATE
 table(readRDS(paste0(outpath,"se2_altdef_n.rds")))
+readRDS(paste0(outpath,"se2_3molb.rds"))$estimates$ATE
+readRDS(paste0(outpath,"se2_gr7bup.rds"))$estimates$ATE
+

@@ -51,9 +51,10 @@ adj_wks_ <- rbind(lmtp1a,lmtp1c,lmtp2) |>
   filter(trt!="rd") |>
   rename(r = est, r_lcl = lcl, r_ucl = ucl) |>
   mutate(ntx = ifelse(trt=="bup","SL-BUP","XR-NTX")) |>
-  mutate(t = t + 5) |>
   dplyr::select(-trt) %>%
-  rbind(.,crude_wks |> filter(t==2 & out!="1b") |> dplyr::select(t,ntx,out,se,r,r_lcl,r_ucl)) #add a row so that curves start at 0
+  rbind(.,crude_wks |> 
+          filter(t==2 & out!="1b") |> 
+          dplyr::select(t,ntx,out,se,r,r_lcl,r_ucl)) #add a row so that curves start at 0
 
 adj_wks <- adj_wks_ |>
   mutate(day = t*7-6) |> # create a day variable so can use day for x-axis
@@ -84,9 +85,10 @@ cruderds_wks <- cruderds_wks_ |>
 adjrd_wks_ <- rbind(lmtp1a,lmtp1c,lmtp2) |>
   filter(trt=="rd") |>
   rename(rd = est, rd_lcl = lcl, rd_ucl = ucl) |>
-  mutate(t = t + 5) |>
   dplyr::select(-trt) %>%
-  rbind(.,cruderds_wks |> filter(rd==0 & out!="1b") |> dplyr::select(t,out,se,rd,rd_lcl,rd_ucl))
+  rbind(.,cruderds_wks |> 
+          filter(rd==0 & out!="1b") |> 
+          dplyr::select(t,out,se,rd,rd_lcl,rd_ucl))
 
 adjrd_wks <- adjrd_wks_ |>
   mutate(day = t*7-6) |> # create a day variable so can use day for x-axis
@@ -231,107 +233,4 @@ savefig(plots1a)
 savefig(plots1c)
 savefig(plots2)
 
-####################//
-# For SER abstract
-rdplot <- function(data,outcome,rdmin,rdmax,rdbreaks){
-  days <- grepl("days",deparse(substitute(data)))
-  
-  data|>
-    mutate(rd = rd*100,
-           rd_lcl = rd_lcl*100,
-           rd_ucl = rd_ucl*100) |>
-    filter(out==outcome) |>
-    ggplot() +
-    theme_classic() +
-    theme(panel.background = element_rect(fill = NA),
-          panel.grid.major = element_line(colour = "gray94"),
-          legend.margin=margin(c(1,5,5,5))) +
-    geom_hline(yintercept=0) + 
-    geom_stepconfint(aes(x = t, ymin = rd_lcl, ymax = rd_ucl),
-                     alpha=0.3,
-                     fill = "#2e4057") +
-    geom_step(aes(x = t, y = rd),
-              show.legend = FALSE,
-              linewidth = 1) +
-    xlab(if(days==TRUE){"Time (days)"}else{"Time (weeks)"})+
-    ylab(if(outcome=="1a"){"%, Discontinuation"}else{"%, Overdose"}) +
-    scale_x_continuous(limits = c(0, if(days==TRUE){180}else{26}),
-                       breaks = if(days==TRUE){
-                         seq(0,180,by=30)
-                       }else{
-                         seq(0,26,by=1)},
-                       expand = c(0, 0))+
-    scale_y_continuous(limits = c(rdmin, rdmax), 
-                       breaks = rdbreaks,
-                       expand = c(0, 0)) +
-    annotate(geom="text", x=if(days==TRUE){35}else{3.5}, y=(.75*rdmax), 
-             label="XR-NTX has higher %",
-             size=3.5,
-             color="black") +
-    annotate(geom="text", x=if(days==TRUE){35}else{3.5}, y=(.75*rdmin), 
-             label="SL-BUP has higher %",
-             size=3.5,
-             color="black")
-}
 
-ard1a <- rdplot(adjrd_wks,"1a",-21,21,seq(-20,20,by=10))
-ard2 <- rdplot(adjrd_wks,"2",-2,2,seq(-2,2,by=1))
-
-plots_serabsrtact <- ard1a/ard2
-
-
-riskplot <- function(data,outcome,rmax,rbreaks){
-  days <- grepl("days",deparse(substitute(data)))
-  crude <- grepl("crude",deparse(substitute(data)))
-  
-  fig <- data|>
-    mutate(r = r*100,
-           r_lcl = r_lcl*100,
-           r_ucl = r_ucl*100) |>
-    filter(out==outcome) |>
-    ggplot() +
-    theme_classic() +
-    if(outcome=="1a"){
-      theme(legend.position = c(0.2, 0.8),
-            legend.title = element_blank(),
-            legend.box.background = element_rect(colour = "black"),
-            #legend.background = element_rect(fill="transparent"),
-            legend.background = element_blank(),
-            panel.background = element_rect(fill = NA),
-            panel.grid.major = element_line(colour = "gray94"),
-            legend.margin=margin(c(1,5,5,5)))
-    }else{
-      theme(legend.position = "none",
-            panel.background = element_rect(fill = NA),
-            panel.grid.major = element_line(colour = "gray94"))
-    }
-  fig + geom_stepconfint(aes(x = day, ymin = r_lcl, ymax = r_ucl,
-                             group = ntx,
-                             fill = ntx),
-                         alpha=0.3,) +
-    geom_step(aes(x = day, y = r,
-                  group = ntx,
-                  color = ntx),
-              show.legend = TRUE,
-              linewidth = 1) +
-    xlab("Time (days)")+
-    ylab(if(outcome=="1a"){"%, Discontinuation"}else{"%, Overdose"}) +
-    scale_x_continuous(limits = c(0, 180),
-                       breaks = seq(0,180,by=30),
-                       expand = expansion(add = c(0, 3)))+
-    scale_y_continuous(limits = c(0, rmax),
-                       breaks = rbreaks,
-                       expand = c(0, 0)) +
-    scale_color_manual(values = mycolors,
-                       breaks=c("XR-NTX","SL-BUP")) +
-    scale_fill_manual(values = mycolors,
-                      breaks=c("XR-NTX","SL-BUP")) 
-  #theme(axis.text.x = element_text(angle = -45))#, vjust = 0.5, hjust=1))
-} 
-
-ar1a <- riskplot(adj_wks,"1a",100,seq(0,100,by=20))
-ar2 <- riskplot(adj_wks,"2",7,seq(0,6,by=2))
-
-plots_serabsrtact <- ar1a/ar2 + plot_annotation(
-  title = 'Figure. Cumulative risk (%) of discontinuation (top) and overdose (bottom)',
-)

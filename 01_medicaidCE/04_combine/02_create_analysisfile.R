@@ -191,7 +191,7 @@ eachcohort <- function(num){
   saveRDS(withdat, paste0(clean,"analysisdat_flat",num,".rds"))
 }
 
-numbers <- seq(1:6)
+numbers <- 7#seq(1:6)
 walk(numbers,eachcohort)
 
 #################-
@@ -263,8 +263,8 @@ makedatwide <- function(num,interval){
   saveRDS(allwide, paste0(clean,"analysisdat_wide",num,".rds"))
 }
 
-numbers <- 2#seq(1:6)
-walk(numbers,makedatwide,interval="wks")
+#numbers <- 7#seq(1:6)
+#walk(numbers,makedatwide,interval="wks")
 
 # flatdat <- readRDS(paste0(clean,"analysisdat_flat",2,".rds")) |>
 #   mutate(deathafter = fudays_death - fudays_disenroll,

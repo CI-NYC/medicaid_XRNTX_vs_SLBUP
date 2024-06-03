@@ -32,7 +32,7 @@ setwd(path)
 
 
 #################
-# Load and prep data - overall results
+# Load and prep data - primary results
 #################
 
 cohortnum <- 2
@@ -54,9 +54,6 @@ getrds <- function(data){
 lmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,".rds")) |> mutate(out="1a")
 lmtp1c <- readRDS(paste0("lmtpall1c_cohort",cohortnum,".rds"))  |> mutate(out="1c")
 lmtp2 <- readRDS(paste0("lmtpall2_cohort",cohortnum,".rds"))  |> mutate(out="2")
-
-cplmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,"com_chronicpn",".rds"))
-audlmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,"sud_alcohol",".rds"))
 
 #myrnd <- function(x){str_pad(round(x,1),4,pad="0",side="right")}
 #myrnd2 <- function(x){str_pad(round(x,1),4,pad="0",side="right")}
@@ -84,7 +81,6 @@ adj_wks <- rbind(lmtp1a,lmtp1c,lmtp2) |>
   rename(r = est, r_lcl = lcl, r_ucl = ucl) |>
   mutate(r=r*100,r_lcl=r_lcl*100,r_ucl=r_ucl*100) |>
   mutate(ntx = ifelse(trt=="bup","O-BUP","XR-NTX")) |>
-  mutate(t = t + 5) |>
   dplyr::select(-trt) |>
   mutate(est = paste0(ifelse(out=="2",myrnd2(r),myrnd(r)),
                       " (",
@@ -108,7 +104,7 @@ adjrd_wks <- rbind(lmtp1a,lmtp1c,lmtp2) |>
   filter(trt=="rd") |>
   rename(rd = est, rd_lcl = lcl, rd_ucl = ucl) |>
   mutate(rd=rd*100,rd_lcl=rd_lcl*100,rd_ucl=rd_ucl*100) |>
-  mutate(t = t + 5) |>
+  #mutate(t = t + 5) |>
   dplyr::select(-trt) |>
   mutate(adjrd = paste0(ifelse(out=="2",myrnd2(rd),myrnd(rd)),
                         " (",
@@ -171,8 +167,8 @@ fortab |>
   cols_label(t = "Week",
              crude1 = "XR-NTX",
              adj1 = "XR-NTX",
-             crude0 = "O-BUP",
-             adj0 = "O-BUP",
+             crude0 = "SL-BUP",
+             adj0 = "SL-BUP",
              cruderd = "Difference",
              adjrd = "Difference") |>
   cols_align(
@@ -209,7 +205,7 @@ fortab |>
     columns = starts_with("adj"),
   #  spanners = c("arisks"),
     level = 2
-  ) |>
+  ) #|>
   getlatex()
 
 
@@ -218,7 +214,7 @@ fortab |>
 # Load and prep data - stratified results
 #################
 options(pillar.sigfig = 7)
-rbind(audlmtp1a,cplmtp1a) |>
+rbind(audlmtp1a,cplmtp1a,njlmtp1a) |>
   filter(trt=="rd") |>
   rename(rd = est, rd_lcl = lcl, rd_ucl = ucl) |>
   dplyr::select(-trt) |>
@@ -227,3 +223,7 @@ rbind(audlmtp1a,cplmtp1a) |>
 
 
 
+
+cplmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,"com_chronicpn",".rds"))
+audlmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,"sud_alcohol",".rds"))
+njlmtp1a <- readRDS(paste0("lmtpall1a_cohort",cohortnum,"nj",".rds"))

@@ -11,6 +11,7 @@
 
 library(tidyverse)
 library(purrr)
+library(isotone)
 
 library(lmtp)
 library(mlr3superlearner)
@@ -29,7 +30,6 @@ library(progressr)
 #################-
 
 ### Paths
-
 projpath <- "/home/data/moud/01_medicaidCE/"
 
 # Full
@@ -49,9 +49,8 @@ dat <- readRDS(paste0(clean,"analysisdat_wide",cohortnum,".rds"))
 ### Load covariate list
 source("/home/rr3551/moudr01/scripts/01_medicaidCE/05_analysis/00_covarlist.R")
 
-# Get outcome variable
+### Get outcome variable
 outcome <- commandArgs(trailingOnly=TRUE)
-
 
 #################-
 # Process data----
@@ -72,13 +71,13 @@ dat <- dat |>
 #################-
 
 # Define treatment and covariate vectors
-A <- list("ntx")
+A <- "ntx"
 #W <- c("dem_male")
 W <- covars
 
 # Define library
 #lib <- c("mean","glm")
-lib <- c("mean","glm","lightgbm","earth")
+lib <- c("mean","glm","earth","xgboost")
 
 #### Functions ----
 
@@ -91,49 +90,57 @@ extractdiag <- function(object,trt){
 }
 
 # Extract results
-extractres <- function(object,trt){
-  tibble(est = 1-object$theta,
-         se = object$standard_error,
-         lcl = 1-object$high,
-         ucl = 1-object$low,
-         trt = trt)
+extractres <- function(object){
+  list(theta = object$theta,
+       eif = object$eif)
 }
 
+# # Just a single time point (survival)
+# Y <- c(paste0("out",out,"_Y_",2:10))
+# C <- c(paste0("out",out,"_C_",1:9))
+# y_1 <- lmtp_sdr(dat, A, Y, W, cens = C,
+#                    outcome_type = "survival", 
+#                    folds = 1,
+#                    learners_trt = lib,
+#                    learners_outcome = lib,
+#                    shift = static_binary_on)
+# y_0 <- lmtp_sdr(dat, A, Y, W, cens = C,
+#                    outcome_type = "survival", 
+#                    folds = 1,
+#                    learners_trt = lib,
+#                    learners_outcome = lib,
+#                    shift = static_binary_off)
+# lmtp_contrast(y_1, ref = y_0, type = "additive")
+
+
 # Run survival lmtp_sdr
-survlmtp <- function(Y,C,data,cffolds,diag=FALSE){
-  y_1 %<-% lmtp_sdr(data, A, Y, W, cens = C,
+survlmtp <- function(Y,C,data,cffolds,diag=FALSE,intervention){
+  out %<-% lmtp_sdr(data, A, Y, W, cens = C,
                    outcome_type = "survival", 
                    folds = cffolds,
                    learners_trt = lib,
                    learners_outcome = lib,
-                   shift = static_binary_on)
-  y_0 %<-% lmtp_sdr(data, A, Y, W, cens = C,
-                   outcome_type = "survival", 
-                   folds = cffolds,
-                   learners_trt = lib,
-                   learners_outcome = lib,
-                   shift = static_binary_off)
-  sd %<-% lmtp_contrast(y_1, ref = y_0, type = "additive")
-  
-  results <- rbind(extractres(y_1,"ntx"),
-                   extractres(y_0,"bup"),
-                   tibble(est = -1*sd$vals$theta,
-                          se = sd$vals$std.error,
-                          lcl = -1*sd$vals$conf.high,
-                          ucl = -1*sd$vals$conf.low,
-                          trt = "rd"))
+                   shift = intervention)
+
+  # results <- list("ntx"=extractres(y_1),
+  #                 "bup"=extractres(y_0))
 
   print(paste0("One time point done ",Y[length(Y)]))
 
-  if(diag==TRUE){
-    diag <- rbind(extractdiag(y_1,"ntx"),
-                  extractdiag(y_0,"bup"))
-    return(list("results"=results,"diag"=diag))
-  }else{
-    return(results)
-  }
-
+  # if(diag==TRUE){
+  #   diag <- rbind(extractdiag(y_1,"ntx"),
+  #                 extractdiag(y_0,"bup"))
+  #   return(list("results"=results,"diag"=diag))
+  # }else{
+  #   return(results)
+  # }
+  return(out[c("theta","eif","standard_error")])
 }
+
+# Y <- c(paste0("out",outcome,"_Y_",2:23))
+# C <- c(paste0("out",outcome,"_C_",1:22))
+# set.seed(7)
+# test <- survlmtp(Y,C,dat,1,FALSE,static_binary_off)
 
 
 # Create list of time points with Y and C variables for a single outcome
@@ -144,12 +151,29 @@ createlists <- function(out,Ymin,Ymax){
   C <- vector("list",len)
   
   for (i in 1:len){
-    Y[[i]] <- c(paste0("out",out,"_Y_",2:(Ymax - i + 1)))
-    C[[i]] <- c(paste0("out",out,"_C_",(1):(Ymax - i)))
+    Y[[i]] <- c(paste0("out",out,"_Y_",2:(Ymin + (i-1))))
+    C[[i]] <- c(paste0("out",out,"_C_",1:(Ymin + (i-2))))
   }
   
   list(Y,C)
 }
+
+
+
+# #### Run multiple time pts for each outcome ----
+set.seed(73)
+plan(multicore)
+tic()
+
+points <- createlists(outcome,if(outcome=="2"){3}else{6},26)
+#points <- createlists(outcome,if(outcome=="2"){3}else{6},10)
+surv1 <- future_map2(points[[1]],points[[2]],survlmtp,dat,1,FALSE,static_binary_on)
+surv0 <- future_map2(points[[1]],points[[2]],survlmtp,dat,1,FALSE,static_binary_off)
+
+saveRDS(list(trted = surv1,
+             cntrl = surv0),
+        paste0(outpath,"lmtpall",outcome,"_cohort",cohortnum,"_raw.rds"))
+toc()
 
 
 #### Run last time point to assess diagnostics ----
@@ -158,7 +182,7 @@ createlists <- function(out,Ymin,Ymax){
 #plan(multicore)
 #progressr::handlers(global = TRUE)
 
-#outcome <- "1a"
+# outcome <- "1a"
 # tic()
 # lastsurv <- survlmtp(paste0("out",outcome,"_Y_",3:26),
 #                      paste0("out",outcome,"_C_",2:25),
@@ -170,17 +194,4 @@ createlists <- function(out,Ymin,Ymax){
 # saveRDS(lastsurv,paste0(outpath,"lmtp",outcome,"_cohort",cohortnum,".rds"))
 # toc()
 
-
-# #### Run multiple time pts for each outcome ----
-set.seed(75)
-plan(multicore)
-tic()
-
-points <- createlists(outcome,if(outcome=="2"){3}else{6},26)
-surv1a <- future_map2(points[[1]],points[[2]],survlmtp,dat,1,FALSE)
-
-rresults <- reduce(surv1a,rbind) |>
-                       mutate(t = max(row_number()) - row_number() + 6,.by=trt)
-saveRDS(rresults,paste0(outpath,"lmtpall",outcome,"_cohort",cohortnum,".rds"))
-toc()
 
